@@ -61,10 +61,12 @@ RSpec.describe "/admin/apps/welcome" do
     sign_in admin
     allow(Settings::Community).to receive(:staff_user_id).and_return(admin.id)
 
-    post admin_welcome_index_path
+    2.times do
+      post admin_welcome_index_path
 
-    expect(response).to have_http_status(:found)
-    follow_redirect!
-    expect(response.body).to match(/Introduce yourself to the community/)
+      expect(response).to have_http_status(:found)
+      follow_redirect!
+      expect(response.body).to match(/Introduce yourself to the community/)
+    end
   end
 end

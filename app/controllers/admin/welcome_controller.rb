@@ -1,21 +1,26 @@
 module Admin
   class WelcomeController < Admin::ApplicationController
-    layout "admin"
-
     def index
       @daily_threads = if User.staff_account
                          Article.where("title LIKE 'Welcome Thread - %'").where(user_id: User.staff_account&.id)
                        else
                          []
                        end
+      render layout: "admin"
     end
 
     def create
-      welcome_thread = Article.create(
-        body_markdown: welcome_thread_content,
+      @article = Article.new(
         user: User.staff_account,
+        body_markdown: welcome_thread_content,
       )
-      redirect_to "#{Addressable::URI.parse(welcome_thread.path).path}/edit"
+
+      @version = @article.has_frontmatter? ? "v1" : "v2"
+      @user = @article.user
+      @organizations = @user&.organizations
+      @user_approved_liquid_tags = Users::ApprovedLiquidTags.call(@user)
+
+      render "articles/edit"
     end
 
     private
